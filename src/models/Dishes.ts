@@ -1,10 +1,11 @@
 import * as mongoose from "mongoose";
+// import mongooseCurrency from "mongoose-currency";
 import { commentSchema, CommentDocument } from "./Comments";
 
 export interface IDishDocument {
   name: string,
   description: string,
-  comments?: CommentDocument[],
+  comments?: Array<CommentDocument>,
 };
 
 export type DishDocument = IDishDocument & mongoose.Document;
@@ -26,4 +27,4 @@ const dishSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-export const Dish = mongoose.model<DishDocument>("Dish", dishSchema);
+export const Dish: mongoose.Model<DishDocument> = mongoose.model<DishDocument>("Dish", dishSchema);
