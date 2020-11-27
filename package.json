@@ -1,6 +1,7 @@
 {
   "name": "confusion-server",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "license": "MIT",
   "scripts": {
     "build": "ts-node build.ts && tsc --build tsconfig.prod.json",
     "lint": "eslint . --ext .ts",
@@ -67,6 +68,8 @@
     "jet-logger": "^1.0.4",
     "jsonfile": "^6.1.0",
     "module-alias": "^2.2.2",
+    "mongoose": "^5.10.16",
+    "mongoose-currency": "^0.2.0",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
@@ -77,6 +80,7 @@
     "@types/fs-extra": "^9.0.4",
     "@types/jasmine": "^3.6.2",
     "@types/jsonfile": "^6.0.0",
+    "@types/mongoose": "^5.10.1",
     "@types/morgan": "^1.9.2",
     "@types/node": "^14.14.10",
     "@types/supertest": "^2.0.10",
