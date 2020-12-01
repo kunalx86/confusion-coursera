@@ -1,5 +1,4 @@
 import express, { Request, Response } from "express";
-import * as mongoose from "mongoose";
 
 import { IDishRequest } from "../shared/constants"; 
 import { Dishes } from "../models/Dishes";
@@ -7,38 +6,86 @@ import { Dishes } from "../models/Dishes";
 const router = express.Router();
 
 router.route("/")
-  .get(async (_: Request, res: Response) => {
+  .get(async (_: Request, res: Response, next: Function) => {
     try {
       const dishes = await Dishes.find({});
       res.status(200).json(dishes);
     } catch (err) {
-      console.error(err);
+      next(err);
     }
   })
-  .post((req: IDishRequest, res: Response) => {
-    res.send(`Will add the dish ${req.body.name} with description ${req.body.description}`);
+  .post(async (req: IDishRequest, res: Response, next: Function) => {
+    try {
+      const dish = await Dishes.create(req.body);
+      console.log(`Dish created: ${dish}`);
+      res.status(201).json(dish);
+    } catch (err) {
+      next(err);
+    }
   })
   .put((_: IDishRequest, res: Response) => {
     res.statusCode = 403;
     res.send("PUT not supported on /dishes");
   })
-  .delete((_: Request, res: Response) => {
-    res.send("Will delete all the dishes");
+  .delete(async (_: Request, res: Response, next: Function) => {
+    try {
+      const dishes = await Dishes.remove({});
+      res.status(200).json(dishes);
+    } catch (err) {
+      next(err);
+    }
   });
 
 router.route('/:dishId') 
-  .get((req: Request, res: Response) => {
-    res.send(`Will send the dish ${req.params?.dishId}`);
+  .get(async (req: Request, res: Response, next: Function) => {
+    try {
+      const dish = await Dishes.findById(req.params.dishId);
+      if (dish) {
+        res.status(200).json(dish);
+      } else {
+        res.status(404).json({
+          message: `No such dish ${req.params.dishId}` 
+        });
+      }
+    } catch (err) {
+      next(err);
+    }
   })
   .post((req: IDishRequest, res: Response) => {
     res.statusCode = 403;
       res.send(`POST not supported on /dishes/${req.params?.dishId}/`);
   })
-  .put((req: IDishRequest, res: Response) => {
-    res.send(`Will update the dish ${req.params?.dishId} with information, name ${req.body.name} and description ${req.body.description}`);
+  .put(async (req: IDishRequest, res: Response, next: Function) => {
+    try {
+      const dish = await Dishes.findByIdAndUpdate(req.params.dishId, {
+        $set: req.body,
+      }, {
+        new: true,
+      });
+      if (dish) {
+        res.status(200).json(dish);
+      } else {
+        res.status(404).json({
+          message: `No such dish ${req.params.dishId}`,
+        })
+      }  
+    } catch (err) {
+      next(err);
+    }
   })
-  .delete((req: Request, res: Response) => {
-    res.send(`Will delete the dish ${req.params?.dishId}`);
+  .delete(async (req: Request, res: Response, next: Function) => {
+    try {
+      const dish = await Dishes.findByIdAndRemove(req.params.dishId);
+      if (dish) {
+        res.status(200).json(dish);
+      } else {
+        res.status(404).json({
+          message: `No such dish ${req.params.dishId}`
+        });
+      }
+    } catch (err) {
+      next(err);
+    }
   });
 
 export default router;
