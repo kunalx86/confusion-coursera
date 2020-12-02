@@ -9,7 +9,7 @@ export interface IDishDocument {
   label?: string,
   price: number,
   default?: boolean,
-  comments?: Array<CommentDocument>,
+  comments?: mongoose.Types.DocumentArray<CommentDocument>,
 };
 
 export type DishDocument = IDishDocument & mongoose.Document;
