@@ -8,7 +8,7 @@ export interface IDishDocument {
   category: "mains" | "appetizer" | "dessert",
   label?: string,
   price: number,
-  default?: boolean,
+  featured?: boolean,
   comments?: mongoose.Types.DocumentArray<CommentDocument>,
 };
 
