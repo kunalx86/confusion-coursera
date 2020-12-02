@@ -1,42 +1,90 @@
 import express, { Request, Response } from "express";
 
-import { IRequest } from "../shared/constants"; 
+import { IPromotionRequest } from "../shared/constants"; 
+import { Promotions } from "../models/Promotions";
 
 const router = express.Router();
 
 router.route("/")
-  .all((_: Request, res: Response, next: Function) => {
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/plain");
-    next();
+  .get(async (_: Request, res: Response, next: Function) => {
+    try {
+      const promotions = await Promotions.find({});
+      res.status(200).json(promotions);
+    } catch (err) {
+      next(err);
+    }
   })
-  .get((_: Request, res: Response) => {
-    res.send("Will send promotions");
+  .post(async (req: IPromotionRequest, res: Response, next: Function) => {
+    try {
+      const promotion = await Promotions.create(req.body);
+      res.status(201).json(promotion);
+    } catch (err) {
+      next(err);
+    }
   })
-  .post((req: IRequest, res: Response) => {
-    res.send(`Will add the promotion ${req.body.name} with description ${req.body.description}`);
-  })
-  .put((_: IRequest, res: Response) => {
+  .put((_: IPromotionRequest, res: Response) => {
     res.statusCode = 403;
-    res.send("PUT not supported on /promotions");
+    res.send("PUT not supported on /api/promotions");
   })
-  .delete((_: Request, res: Response) => {
-    res.send("Will delete all the promotions");
+  .delete(async (_: Request, res: Response, next: Function) => {
+    try {
+      const promotions = await Promotions.remove({});
+      res.status(200).json(promotions);
+    } catch (err) {
+      next(err);
+    }
   });
 
-router.route('/:promoId') 
-  .get((req: Request, res: Response) => {
-    res.send(`Will send the promotion ${req.params?.promoId}`);
+router.route('/:promotionId') 
+  .get(async (req: Request, res: Response, next: Function) => {
+    try {
+      const promotion = await Promotions.findById(req.params.promotionId);
+      if (promotion) {
+        res.status(200).json(promotion);
+      } else {
+        res.status(404).json({
+          error: `No such promotion ${req.params.promotionId}` 
+        });
+      }
+    } catch (err) {
+      next(err);
+    }
   })
-  .post((req: IRequest, res: Response) => {
+  .post((req: IPromotionRequest, res: Response) => {
     res.statusCode = 403;
-      res.send(`POST not supported on /promotions/${req.params?.promoId}/`);
+    res.send(`POST not supported on /api/promotions/${req.params?.promotionId}/`);
   })
-  .put((req: IRequest, res: Response) => {
-    res.send(`Will update the promotion ${req.params?.promoId} with information, name ${req.body.name} and description ${req.body.description}`);
+  .put(async (req: IPromotionRequest, res: Response, next: Function) => {
+    try {
+      const promotion = await Promotions.findByIdAndUpdate(req.params.promotionId, {
+        $set: req.body,
+      }, {
+        new: true,
+      });
+      if (promotion) {
+        res.status(200).json(promotion);
+      } else {
+        res.status(404).json({
+          error: `No such promotion ${req.params.promotionId}`,
+        })
+      }  
+    } catch (err) {
+      next(err);
+    }
   })
-  .delete((req: Request, res: Response) => {
-    res.send(`Will delete the promotion ${req.params?.promoId}`);
+  .delete(async (req: Request, res: Response, next: Function) => {
+    try {
+      const promotion = await Promotions.findByIdAndRemove(req.params.promotionId);
+      if (promotion) {
+        res.status(200).json(promotion);
+      } else {
+        res.status(404).json({
+          error: `No such promotion ${req.params.promotionId}`
+        });
+      }
+    } catch (err) {
+      next(err);
+    }
   });
 
 export default router;

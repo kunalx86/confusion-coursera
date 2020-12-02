@@ -1,42 +1,90 @@
 import express, { Request, Response } from "express";
 
-import { IRequest } from "../shared/constants"; 
+import { ILeaderRequest } from "../shared/constants"; 
+import { Leaders } from "../models/Leaders";
 
 const router = express.Router();
 
 router.route("/")
-  .all((_: Request, res: Response, next: Function) => {
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/plain");
-    next();
+  .get(async (_: Request, res: Response, next: Function) => {
+    try {
+      const leaders = await Leaders.find({});
+      res.status(200).json(leaders);
+    } catch (err) {
+      next(err);
+    }
   })
-  .get((_: Request, res: Response) => {
-    res.send("Will send leaders");
+  .post(async (req: ILeaderRequest, res: Response, next: Function) => {
+    try {
+      const leader = await Leaders.create(req.body);
+      res.status(201).json(leader);
+    } catch (err) {
+      next(err);
+    }
   })
-  .post((req: IRequest, res: Response) => {
-    res.send(`Will add the leader ${req.body.name} with description ${req.body.description}`);
-  })
-  .put((_: IRequest, res: Response) => {
+  .put((_: ILeaderRequest, res: Response) => {
     res.statusCode = 403;
-    res.send("PUT not supported on /leaders");
+    res.send("PUT not supported on /api/leaders");
   })
-  .delete((_: Request, res: Response) => {
-    res.send("Will delete all the leaders");
+  .delete(async (_: Request, res: Response, next: Function) => {
+    try {
+      const leaders = await Leaders.remove({});
+      res.status(200).json(leaders);
+    } catch (err) {
+      next(err);
+    }
   });
 
 router.route('/:leaderId') 
-  .get((req: Request, res: Response) => {
-    res.send(`Will send the leader ${req.params?.leaderId}`);
+  .get(async (req: Request, res: Response, next: Function) => {
+    try {
+      const leader = await Leaders.findById(req.params.leaderId);
+      if (leader) {
+        res.status(200).json(leader);
+      } else {
+        res.status(404).json({
+          error: `No such leader ${req.params.leaderId}` 
+        });
+      }
+    } catch (err) {
+      next(err);
+    }
   })
-  .post((req: IRequest, res: Response) => {
+  .post((req: ILeaderRequest, res: Response) => {
     res.statusCode = 403;
-      res.send(`POST not supported on /leaders/${req.params?.leaderId}/`);
+    res.send(`POST not supported on /api/leaders/${req.params?.leaderId}/`);
   })
-  .put((req: IRequest, res: Response) => {
-    res.send(`Will update the leader ${req.params?.leaderId} with information, name ${req.body.name} and description ${req.body.description}`);
+  .put(async (req: ILeaderRequest, res: Response, next: Function) => {
+    try {
+      const leader = await Leaders.findByIdAndUpdate(req.params.leaderId, {
+        $set: req.body,
+      }, {
+        new: true,
+      });
+      if (leader) {
+        res.status(200).json(leader);
+      } else {
+        res.status(404).json({
+          error: `No such leader ${req.params.leaderId}`,
+        })
+      }  
+    } catch (err) {
+      next(err);
+    }
   })
-  .delete((req: Request, res: Response) => {
-    res.send(`Will delete the leader ${req.params?.leaderId}`);
+  .delete(async (req: Request, res: Response, next: Function) => {
+    try {
+      const leader = await Leaders.findByIdAndRemove(req.params.leaderId);
+      if (leader) {
+        res.status(200).json(leader);
+      } else {
+        res.status(404).json({
+          error: `No such leader ${req.params.leaderId}`
+        });
+      }
+    } catch (err) {
+      next(err);
+    }
   });
 
 export default router;
