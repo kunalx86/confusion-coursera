@@ -19,3 +19,9 @@ export interface IPromotionRequest extends Request {
 export interface ILeaderRequest extends Request {
   body: ILeaderDocument
 }
+
+interface ExpressError {
+  status?: number
+}
+
+export type CustomError = ExpressError & Error;

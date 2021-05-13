@@ -11,6 +11,7 @@ import mongoose from "mongoose";
 
 import BaseRouter from './routes';
 import logger from '@shared/Logger';
+import { CustomError } from '@shared/constants';
 
 (async () => {
   const app = express();
@@ -46,14 +47,37 @@ import logger from '@shared/Logger';
     app.use(helmet());
   }
 
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    console.log(req);
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+      let err:CustomError = new Error("You are not authenticated!");
+      res.setHeader('WWW-Authenticate', 'Basic')
+      err.status = 401;
+      return next(err);
+    }
+    const auth = Buffer.from(authHeader.split(' ')[1], "base64").toString().split(':');
+    const [username, password] = auth;
+
+    if (username === 'admin' && password === 'password') {
+      next();
+    }
+    else {
+      let err:CustomError = new Error("You are not authenticated!");
+      res.setHeader('WWW-Authenticate', 'Basic')
+      err.status = 401;
+      return next(err);
+    }
+  });
+
   // Add APIs
   app.use('/api', BaseRouter);
 
   // Print API errors
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
     logger.err(err, true);
-    return res.status(BAD_REQUEST).json({
+    return res.status(err.status || BAD_REQUEST).json({
       error: err.message,
     });
   });
