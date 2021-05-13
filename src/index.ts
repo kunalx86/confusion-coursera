@@ -35,7 +35,7 @@ import { CustomError } from '@shared/constants';
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  app.use(cookieParser());
+  app.use(cookieParser(process.env.COOKIE_SECRET));
 
   // Show routes called in console during development
   if (process.env.NODE_ENV === 'development') {
@@ -48,25 +48,42 @@ import { CustomError } from '@shared/constants';
   }
 
   app.use((req: Request, res: Response, next: NextFunction) => {
-    console.log(req);
-    const authHeader = req.headers['authorization'];
-    if (!authHeader) {
-      let err:CustomError = new Error("You are not authenticated!");
-      res.setHeader('WWW-Authenticate', 'Basic')
-      err.status = 401;
-      return next(err);
-    }
-    const auth = Buffer.from(authHeader.split(' ')[1], "base64").toString().split(':');
-    const [username, password] = auth;
+    console.log(req.signedCookies);
 
-    if (username === 'admin' && password === 'password') {
-      next();
+    if (!req.signedCookies['user']) {
+      const authHeader = req.headers['authorization'];
+      if (!authHeader) {
+        let err:CustomError = new Error("You are not authenticated!");
+        res.setHeader('WWW-Authenticate', 'Basic')
+        err.status = 401;
+        return next(err);
+      }
+      const auth = Buffer.from(authHeader.split(' ')[1], "base64").toString().split(':');
+      const [username, password] = auth;
+
+      if (username === 'admin' && password === 'password') {
+        res.cookie('user', 'admin', {
+          signed: true,
+          httpOnly: true,
+        })
+        next();
+      }
+      else {
+        let err:CustomError = new Error("You are not authenticated!");
+        res.setHeader('WWW-Authenticate', 'Basic')
+        err.status = 401;
+        return next(err);
+      }
     }
     else {
-      let err:CustomError = new Error("You are not authenticated!");
-      res.setHeader('WWW-Authenticate', 'Basic')
-      err.status = 401;
-      return next(err);
+      if (req.signedCookies['user'] === 'admin') {
+        next();
+      }
+      else {
+        let err:CustomError = new Error("You are not admin!");
+        err.status = 401;
+        return next(err);
+      }
     }
   });
 
