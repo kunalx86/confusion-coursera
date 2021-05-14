@@ -59,40 +59,40 @@ import { CustomError } from '@shared/constants';
     app.use(helmet());
   }
 
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    if (!req.session.user) {
-      const authHeader = req.headers['authorization'];
-      if (!authHeader) {
-        let err:CustomError = new Error("You are not authenticated!");
-        res.setHeader('WWW-Authenticate', 'Basic')
-        err.status = 401;
-        return next(err);
-      }
-      const auth = Buffer.from(authHeader.split(' ')[1], "base64").toString().split(':');
-      const [username, password] = auth;
+  // app.use((req: Request, res: Response, next: NextFunction) => {
+  //   if (!req.session.user) {
+  //     const authHeader = req.headers['authorization'];
+  //     if (!authHeader) {
+  //       let err:CustomError = new Error("You are not authenticated!");
+  //       res.setHeader('WWW-Authenticate', 'Basic')
+  //       err.status = 401;
+  //       return next(err);
+  //     }
+  //     const auth = Buffer.from(authHeader.split(' ')[1], "base64").toString().split(':');
+  //     const [username, password] = auth;
 
-      if (username === 'admin' && password === 'password') {
-        req.session.user = "admin";
-        next();
-      }
-      else {
-        let err:CustomError = new Error("You are not authenticated!");
-        res.setHeader('WWW-Authenticate', 'Basic')
-        err.status = 401;
-        return next(err);
-      }
-    }
-    else {
-      if (req.session.user === 'admin') {
-        next();
-      }
-      else {
-        let err:CustomError = new Error("You are not admin!");
-        err.status = 401;
-        return next(err);
-      }
-    }
-  });
+  //     if (username === 'admin' && password === 'password') {
+  //       req.session.user = "admin";
+  //       next();
+  //     }
+  //     else {
+  //       let err:CustomError = new Error("You are not authenticated!");
+  //       res.setHeader('WWW-Authenticate', 'Basic')
+  //       err.status = 401;
+  //       return next(err);
+  //     }
+  //   }
+  //   else {
+  //     if (req.session.user === 'admin') {
+  //       next();
+  //     }
+  //     else {
+  //       let err:CustomError = new Error("You are not admin!");
+  //       err.status = 401;
+  //       return next(err);
+  //     }
+  //   }
+  // });
 
   // Add APIs
   app.use('/api', BaseRouter);
