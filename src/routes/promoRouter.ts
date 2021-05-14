@@ -1,14 +1,14 @@
 import express, { Request, Response } from "express";
 
 import { IPromotionRequest } from "../shared/constants"; 
-import { Promotions } from "../models/Promotions";
+import { Promotion } from "../models/Promotions";
 
 const router = express.Router();
 
 router.route("/")
   .get(async (_: Request, res: Response, next: Function) => {
     try {
-      const promotions = await Promotions.find({});
+      const promotions = await Promotion.find({});
       res.status(200).json(promotions);
     } catch (err) {
       next(err);
@@ -16,7 +16,7 @@ router.route("/")
   })
   .post(async (req: IPromotionRequest, res: Response, next: Function) => {
     try {
-      const promotion = await Promotions.create(req.body);
+      const promotion = await Promotion.create(req.body);
       res.status(201).json(promotion);
     } catch (err) {
       next(err);
@@ -28,7 +28,7 @@ router.route("/")
   })
   .delete(async (_: Request, res: Response, next: Function) => {
     try {
-      const promotions = await Promotions.remove({});
+      const promotions = await Promotion.remove({});
       res.status(200).json(promotions);
     } catch (err) {
       next(err);
@@ -38,7 +38,7 @@ router.route("/")
 router.route('/:promotionId') 
   .get(async (req: Request, res: Response, next: Function) => {
     try {
-      const promotion = await Promotions.findById(req.params.promotionId);
+      const promotion = await Promotion.findById(req.params.promotionId);
       if (promotion) {
         res.status(200).json(promotion);
       } else {
@@ -56,7 +56,7 @@ router.route('/:promotionId')
   })
   .put(async (req: IPromotionRequest, res: Response, next: Function) => {
     try {
-      const promotion = await Promotions.findByIdAndUpdate(req.params.promotionId, {
+      const promotion = await Promotion.findByIdAndUpdate(req.params.promotionId, {
         $set: req.body,
       }, {
         new: true,
@@ -74,7 +74,7 @@ router.route('/:promotionId')
   })
   .delete(async (req: Request, res: Response, next: Function) => {
     try {
-      const promotion = await Promotions.findByIdAndRemove(req.params.promotionId);
+      const promotion = await Promotion.findByIdAndRemove(req.params.promotionId);
       if (promotion) {
         res.status(200).json(promotion);
       } else {

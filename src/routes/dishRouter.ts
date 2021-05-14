@@ -1,15 +1,15 @@
 import express, { Request, Response } from "express";
 
 import { ICommentRequest, IDishRequest } from "../shared/constants"; 
-import { Dishes } from "../models/Dishes";
-import { Comments } from "../models/Comments";
+import { Dish } from "../models/Dishes";
+import { Comment } from "../models/Comments";
 
 const router = express.Router();
 
 router.route("/")
   .get(async (_: Request, res: Response, next: Function) => {
     try {
-      const dishes = await Dishes.find({});
+      const dishes = await Dish.find({});
       res.status(200).json(dishes);
     } catch (err) {
       next(err);
@@ -17,7 +17,7 @@ router.route("/")
   })
   .post(async (req: IDishRequest, res: Response, next: Function) => {
     try {
-      const dish = await Dishes.create(req.body);
+      const dish = await Dish.create(req.body);
       res.status(201).json(dish);
     } catch (err) {
       next(err);
@@ -29,7 +29,7 @@ router.route("/")
   })
   .delete(async (_: Request, res: Response, next: Function) => {
     try {
-      const dishes = await Dishes.remove({});
+      const dishes = await Dish.remove({});
       res.status(200).json(dishes);
     } catch (err) {
       next(err);
@@ -39,7 +39,7 @@ router.route("/")
 router.route('/:dishId') 
   .get(async (req: Request, res: Response, next: Function) => {
     try {
-      const dish = await Dishes.findById(req.params.dishId);
+      const dish = await Dish.findById(req.params.dishId);
       if (dish) {
         res.status(200).json(dish);
       } else {
@@ -57,7 +57,7 @@ router.route('/:dishId')
   })
   .put(async (req: IDishRequest, res: Response, next: Function) => {
     try {
-      const dish = await Dishes.findByIdAndUpdate(req.params.dishId, {
+      const dish = await Dish.findByIdAndUpdate(req.params.dishId, {
         $set: req.body,
       }, {
         new: true,
@@ -75,7 +75,7 @@ router.route('/:dishId')
   })
   .delete(async (req: Request, res: Response, next: Function) => {
     try {
-      const dish = await Dishes.findByIdAndRemove(req.params.dishId);
+      const dish = await Dish.findByIdAndRemove(req.params.dishId);
       if (dish) {
         res.status(200).json(dish);
       } else {
@@ -92,7 +92,7 @@ router.route('/:dishId')
 router.route("/:dishId/comments")
   .get(async (req: Request, res: Response, next: Function) => {
     try {
-      const dish = await Dishes.findById(req.params.dishId);
+      const dish = await Dish.findById(req.params.dishId);
       if (dish) {
         res.status(200).json({
           comments: dish.comments
@@ -108,9 +108,9 @@ router.route("/:dishId/comments")
   })
   .post(async (req: ICommentRequest, res: Response, next: Function) => {
     try {
-      const dish = await Dishes.findById(req.params.dishId);
+      const dish = await Dish.findById(req.params.dishId);
       if (dish) {
-        dish.comments?.push(new Comments(req.body));
+        dish.comments?.push(new Comment(req.body));
         const newDish = await dish.save();
         res.status(200).json({
           dish: newDish
@@ -130,7 +130,7 @@ router.route("/:dishId/comments")
   })
   .delete(async (req: Request, res: Response, next: Function) => {
     try {
-      const dish = await Dishes.findById(req.params.dishId);
+      const dish = await Dish.findById(req.params.dishId);
       if (dish) {
         if (dish.comments) {
           for (let i = (dish.comments.length - 1); i >= 0; --i) {
@@ -154,7 +154,7 @@ router.route("/:dishId/comments")
 router.route('/:dishId/comments/:commentId') 
   .get(async (req: Request, res: Response, next: Function) => {
     try {
-      const dish = await Dishes.findById(req.params.dishId);
+      const dish = await Dish.findById(req.params.dishId);
       if (dish && dish.comments?.id(req.params.commentId)) {
         res.status(200).json({
           comment: dish.comments.id(req.params.commentId)
@@ -178,7 +178,7 @@ router.route('/:dishId/comments/:commentId')
   })
   .put(async (req: ICommentRequest, res: Response, next: Function) => {
     try {
-      const dish = await Dishes.findById(req.params.dishId);
+      const dish = await Dish.findById(req.params.dishId);
       if (dish && dish.comments?.id(req.params.commentId)) {
         if (req.body.rating) {
           dish.comments.id(req.params.commentId).rating = req.body.rating;
@@ -205,7 +205,7 @@ router.route('/:dishId/comments/:commentId')
   })
   .delete(async (req: Request, res: Response, next: Function) => {
     try {
-      const dish = await Dishes.findById(req.params.dishId);
+      const dish = await Dish.findById(req.params.dishId);
       if (dish && dish.comments?.id(req.params.commentId)) {
         dish.comments.id(req.params.commentId).remove();
         const newDish = await dish.save();

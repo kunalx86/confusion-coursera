@@ -2,7 +2,7 @@ import { CustomError } from "@shared/constants";
 import { Request, Response, NextFunction } from "express";
 
 export default (req: Request, _: Response, next: NextFunction) => {
-  if (req.session.user) {
+  if (req.user) {
     next();
   }
   else {

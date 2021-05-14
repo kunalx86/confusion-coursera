@@ -15,6 +15,9 @@ import mongoose from "mongoose";
 import BaseRouter from './routes';
 import logger from '@shared/Logger';
 import { CustomError } from '@shared/constants';
+import passport from "passport"
+const authenticate = require("./authenticate");
+
 // import { SessionOptions } from 'http2';
 
 (async () => {
@@ -48,6 +51,9 @@ import { CustomError } from '@shared/constants';
     resave: false,
     store: new FileStore(),
   }));
+
+  app.use(passport.initialize());
+  app.use(passport.session())
 
   // Show routes called in console during development
   if (process.env.NODE_ENV === 'development') {

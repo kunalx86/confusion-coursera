@@ -1,14 +1,14 @@
 import express, { Request, Response } from "express";
 
 import { ILeaderRequest } from "../shared/constants"; 
-import { Leaders } from "../models/Leaders";
+import { Leader } from "../models/Leaders";
 
 const router = express.Router();
 
 router.route("/")
   .get(async (_: Request, res: Response, next: Function) => {
     try {
-      const leaders = await Leaders.find({});
+      const leaders = await Leader.find({});
       res.status(200).json(leaders);
     } catch (err) {
       next(err);
@@ -16,7 +16,7 @@ router.route("/")
   })
   .post(async (req: ILeaderRequest, res: Response, next: Function) => {
     try {
-      const leader = await Leaders.create(req.body);
+      const leader = await Leader.create(req.body);
       res.status(201).json(leader);
     } catch (err) {
       next(err);
@@ -28,7 +28,7 @@ router.route("/")
   })
   .delete(async (_: Request, res: Response, next: Function) => {
     try {
-      const leaders = await Leaders.remove({});
+      const leaders = await Leader.remove({});
       res.status(200).json(leaders);
     } catch (err) {
       next(err);
@@ -38,7 +38,7 @@ router.route("/")
 router.route('/:leaderId') 
   .get(async (req: Request, res: Response, next: Function) => {
     try {
-      const leader = await Leaders.findById(req.params.leaderId);
+      const leader = await Leader.findById(req.params.leaderId);
       if (leader) {
         res.status(200).json(leader);
       } else {
@@ -56,7 +56,7 @@ router.route('/:leaderId')
   })
   .put(async (req: ILeaderRequest, res: Response, next: Function) => {
     try {
-      const leader = await Leaders.findByIdAndUpdate(req.params.leaderId, {
+      const leader = await Leader.findByIdAndUpdate(req.params.leaderId, {
         $set: req.body,
       }, {
         new: true,
@@ -74,7 +74,7 @@ router.route('/:leaderId')
   })
   .delete(async (req: Request, res: Response, next: Function) => {
     try {
-      const leader = await Leaders.findByIdAndRemove(req.params.leaderId);
+      const leader = await Leader.findByIdAndRemove(req.params.leaderId);
       if (leader) {
         res.status(200).json(leader);
       } else {

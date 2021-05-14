@@ -40,4 +40,4 @@ const leaderSchema = new mongoose.Schema({
   timestamps: true
 });
 
-export const Leaders = mongoose.model<LeaderDocument>("Leader", leaderSchema);
+export const Leader = mongoose.model<LeaderDocument>("Leader", leaderSchema);

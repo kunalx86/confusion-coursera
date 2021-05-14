@@ -52,4 +52,4 @@ const dishSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-export const Dishes = mongoose.model<DishDocument>("Dish", dishSchema);
+export const Dish = mongoose.model<DishDocument>("Dish", dishSchema);

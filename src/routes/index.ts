@@ -16,7 +16,7 @@ router.get("/", (_: Request, res: Response) => {
 
 router.get("/whoami", authMiddleware, (req: Request, res: Response) => {
   res.status(200).send({
-    message: `You are user ${req.session.username}`,
+    message: `You are user ${req.user?.username}`,
   });
 })
 

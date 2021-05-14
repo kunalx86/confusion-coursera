@@ -41,4 +41,4 @@ const promotionSchema = new mongoose.Schema({
   timestamps: true
 });
 
-export const Promotions = mongoose.model<PromotionDocument>("Promotion", promotionSchema);
+export const Promotion = mongoose.model<PromotionDocument>("Promotion", promotionSchema);
