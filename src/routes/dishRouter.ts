@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 
 import { ICommentRequest, IDishRequest } from "../shared/constants"; 
 import { Dishes } from "../models/Dishes";
-import { Comments } from "src/models/Comments";
+import { Comments } from "../models/Comments";
 
 const router = express.Router();
 

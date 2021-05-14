@@ -1,10 +1,13 @@
 import './preStart'; // Must be the first import
 
-import cookieParser from 'cookie-parser';
+// import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import helmet from 'helmet';
 
 import express, { NextFunction, Request, Response } from 'express';
+import session from 'express-session';
+const FileStore = require('session-file-store')(session);
+
 import StatusCodes from 'http-status-codes';
 import 'express-async-errors';
 import mongoose from "mongoose";
@@ -12,9 +15,11 @@ import mongoose from "mongoose";
 import BaseRouter from './routes';
 import logger from '@shared/Logger';
 import { CustomError } from '@shared/constants';
+// import { SessionOptions } from 'http2';
 
 (async () => {
   const app = express();
+  FileStore(session);
   const { BAD_REQUEST } = StatusCodes;
   const url = process.env.MONGO_URL || "";
   try {
@@ -35,7 +40,14 @@ import { CustomError } from '@shared/constants';
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  app.use(cookieParser(process.env.COOKIE_SECRET));
+  // app.use(cookieParser(process.env.COOKIE_SECRET));
+  app.use(session({
+    name: 'session-id',
+    secret: process.env.SESSION_SECRET || "",
+    saveUninitialized: false,
+    resave: false,
+    store: new FileStore(),
+  }));
 
   // Show routes called in console during development
   if (process.env.NODE_ENV === 'development') {
@@ -48,9 +60,7 @@ import { CustomError } from '@shared/constants';
   }
 
   app.use((req: Request, res: Response, next: NextFunction) => {
-    console.log(req.signedCookies);
-
-    if (!req.signedCookies['user']) {
+    if (!req.session.user) {
       const authHeader = req.headers['authorization'];
       if (!authHeader) {
         let err:CustomError = new Error("You are not authenticated!");
@@ -62,10 +72,7 @@ import { CustomError } from '@shared/constants';
       const [username, password] = auth;
 
       if (username === 'admin' && password === 'password') {
-        res.cookie('user', 'admin', {
-          signed: true,
-          httpOnly: true,
-        })
+        req.session.user = "admin";
         next();
       }
       else {
@@ -76,7 +83,7 @@ import { CustomError } from '@shared/constants';
       }
     }
     else {
-      if (req.signedCookies['user'] === 'admin') {
+      if (req.session.user === 'admin') {
         next();
       }
       else {
