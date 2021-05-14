@@ -5,6 +5,7 @@ import leaderRouter from "./leaderRouter";
 import promoRouter from "./promoRouter";
 import userRouter from "./userRouter";
 import authMiddleware from "../middleware/auth";
+import { verifyUser } from 'src/authenticate';
 
 // Init router and path
 const router = Router();
@@ -14,16 +15,16 @@ router.get("/", (_: Request, res: Response) => {
   res.send("Hello!");
 });
 
-router.get("/whoami", authMiddleware, (req: Request, res: Response) => {
+router.get("/whoami", verifyUser, (req: Request, res: Response) => {
   res.status(200).send({
     message: `You are user ${req.user?.username}`,
   });
 })
 
 router.use("/users", userRouter);
-router.use("/dishes", authMiddleware, dishRouter);
-router.use("/leaders", authMiddleware, leaderRouter);
-router.use("/promotions", authMiddleware, promoRouter);
+router.use("/dishes", dishRouter);
+router.use("/leaders", leaderRouter);
+router.use("/promotions", promoRouter);
 
 // Export the base-router
 export default router;

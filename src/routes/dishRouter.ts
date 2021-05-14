@@ -3,6 +3,7 @@ import express, { Request, Response } from "express";
 import { ICommentRequest, IDishRequest } from "../shared/constants"; 
 import { Dish } from "../models/Dishes";
 import { Comment } from "../models/Comments";
+import { verifyUser } from "src/authenticate";
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ router.route("/")
       next(err);
     }
   })
-  .post(async (req: IDishRequest, res: Response, next: Function) => {
+  .post(verifyUser, async (req: IDishRequest, res: Response, next: Function) => {
     try {
       const dish = await Dish.create(req.body);
       res.status(201).json(dish);
@@ -23,11 +24,11 @@ router.route("/")
       next(err);
     }
   })
-  .put((_: IDishRequest, res: Response) => {
+  .put(verifyUser, (_: IDishRequest, res: Response) => {
     res.statusCode = 403;
     res.send("PUT not supported on /api/dishes");
   })
-  .delete(async (_: Request, res: Response, next: Function) => {
+  .delete(verifyUser, async (_: Request, res: Response, next: Function) => {
     try {
       const dishes = await Dish.remove({});
       res.status(200).json(dishes);
@@ -51,11 +52,11 @@ router.route('/:dishId')
       next(err);
     }
   })
-  .post((req: IDishRequest, res: Response) => {
+  .post(verifyUser, (req: IDishRequest, res: Response) => {
     res.statusCode = 403;
     res.send(`POST not supported on /api/dishes/${req.params?.dishId}/`);
   })
-  .put(async (req: IDishRequest, res: Response, next: Function) => {
+  .put(verifyUser, async (req: IDishRequest, res: Response, next: Function) => {
     try {
       const dish = await Dish.findByIdAndUpdate(req.params.dishId, {
         $set: req.body,
@@ -73,7 +74,7 @@ router.route('/:dishId')
       next(err);
     }
   })
-  .delete(async (req: Request, res: Response, next: Function) => {
+  .delete(verifyUser, async (req: Request, res: Response, next: Function) => {
     try {
       const dish = await Dish.findByIdAndRemove(req.params.dishId);
       if (dish) {
@@ -106,7 +107,7 @@ router.route("/:dishId/comments")
       next(err);
     }
   })
-  .post(async (req: ICommentRequest, res: Response, next: Function) => {
+  .post(verifyUser, async (req: ICommentRequest, res: Response, next: Function) => {
     try {
       const dish = await Dish.findById(req.params.dishId);
       if (dish) {
@@ -124,11 +125,11 @@ router.route("/:dishId/comments")
       next(err);
     }
   })
-  .put((req: IDishRequest, res: Response) => {
+  .put(verifyUser, (req: IDishRequest, res: Response) => {
     res.statusCode = 403;
     res.send(`PUT not supported on /api/dishes/${req.params.dishId}/comments`);
   })
-  .delete(async (req: Request, res: Response, next: Function) => {
+  .delete(verifyUser, async (req: Request, res: Response, next: Function) => {
     try {
       const dish = await Dish.findById(req.params.dishId);
       if (dish) {
@@ -172,11 +173,11 @@ router.route('/:dishId/comments/:commentId')
       next(err);
     }
   })
-  .post((req: IDishRequest, res: Response) => {
+  .post(verifyUser, (req: IDishRequest, res: Response) => {
     res.statusCode = 403;
     res.send(`POST not supported on /dishes/${req.params?.dishId}/comments/${req.params.commentId}`);
   })
-  .put(async (req: ICommentRequest, res: Response, next: Function) => {
+  .put(verifyUser, async (req: ICommentRequest, res: Response, next: Function) => {
     try {
       const dish = await Dish.findById(req.params.dishId);
       if (dish && dish.comments?.id(req.params.commentId)) {
@@ -203,7 +204,7 @@ router.route('/:dishId/comments/:commentId')
       next(err);
     }
   })
-  .delete(async (req: Request, res: Response, next: Function) => {
+  .delete(verifyUser, async (req: Request, res: Response, next: Function) => {
     try {
       const dish = await Dish.findById(req.params.dishId);
       if (dish && dish.comments?.id(req.params.commentId)) {

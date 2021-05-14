@@ -1,12 +1,11 @@
 import './preStart'; // Must be the first import
 
-// import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import helmet from 'helmet';
 
 import express, { NextFunction, Request, Response } from 'express';
-import session from 'express-session';
-const FileStore = require('session-file-store')(session);
+// import session from 'express-session';
+// const FileStore = require('session-file-store')(session);
 
 import StatusCodes from 'http-status-codes';
 import 'express-async-errors';
@@ -16,13 +15,11 @@ import BaseRouter from './routes';
 import logger from '@shared/Logger';
 import { CustomError } from '@shared/constants';
 import passport from "passport"
-const authenticate = require("./authenticate");
-
-// import { SessionOptions } from 'http2';
+import "./authenticate";
 
 (async () => {
   const app = express();
-  FileStore(session);
+  // FileStore(session);
   const { BAD_REQUEST } = StatusCodes;
   const url = process.env.MONGO_URL || "";
   try {
@@ -44,16 +41,16 @@ const authenticate = require("./authenticate");
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   // app.use(cookieParser(process.env.COOKIE_SECRET));
-  app.use(session({
-    name: 'session-id',
-    secret: process.env.SESSION_SECRET || "",
-    saveUninitialized: false,
-    resave: false,
-    store: new FileStore(),
-  }));
+  // app.use(session({
+  //   name: 'session-id',
+  //   secret: process.env.SESSION_SECRET || "",
+  //   saveUninitialized: false,
+  //   resave: false,
+  //   store: new FileStore(),
+  // }));
 
   app.use(passport.initialize());
-  app.use(passport.session())
+  // app.use(passport.session())
 
   // Show routes called in console during development
   if (process.env.NODE_ENV === 'development') {

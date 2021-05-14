@@ -1,4 +1,5 @@
 import { Request } from "express";
+import { MongooseDocument } from "mongoose";
 import { ICommentDocument } from "src/models/Comments";
 import { IDishDocument } from "src/models/Dishes";
 import { ILeaderDocument } from "src/models/Leaders";
@@ -30,3 +31,7 @@ interface ExpressError {
 }
 
 export type CustomError = ExpressError & Error;
+
+export interface JWTPayload {
+  _id: MongooseDocument["_id"]
+}

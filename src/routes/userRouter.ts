@@ -1,8 +1,7 @@
-import { CustomError, IUserRequest } from '@shared/constants';
 import express, { NextFunction, Request, Response } from 'express';
 import { User, UserDocument } from 'src/models/Users';
-import authMiddleware from "../middleware/auth";
 import passport from "passport";
+import { getToken, verifyUser } from 'src/authenticate';
 
 const router = express.Router();
 
@@ -44,7 +43,7 @@ router.route("/register")
   });
 
 router.route("/login")
-  .post(passport.authenticate('local'), (_: Request, res: Response) => {
+  .post(passport.authenticate('local'), (req: Request, res: Response) => {
     // if (req.session.user) {
     //   res.status(200).send({
     //     message: "You are already authenticated. If you want to login as different user please log out first"
@@ -73,14 +72,18 @@ router.route("/login")
     //   err.status = 403;
     //   return next(err);
     // }
+    const token = getToken({
+      _id: req.user?.id
+    });
     res.status(200).send({
       success: true,
       message: "You have logged in successfully",
+      token,
     })
   });
 
 router.route("/logout")
-  .get(authMiddleware, (req: Request, res: Response, next: NextFunction) => {
+  .get(verifyUser, (req: Request, res: Response, next: NextFunction) => {
     req.session.destroy((err) => next(err));
     res.clearCookie("session-id");
     res.send({
