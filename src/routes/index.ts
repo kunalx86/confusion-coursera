@@ -4,7 +4,6 @@ import dishRouter from "./dishRouter";
 import leaderRouter from "./leaderRouter";
 import promoRouter from "./promoRouter";
 import userRouter from "./userRouter";
-import authMiddleware from "../middleware/auth";
 import { verifyUser } from 'src/authenticate';
 
 // Init router and path

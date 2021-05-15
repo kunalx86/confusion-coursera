@@ -1,10 +1,14 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { User, UserDocument } from 'src/models/Users';
 import passport from "passport";
-import { getToken, verifyUser } from 'src/authenticate';
-import { IUserRequest } from '@shared/constants';
+import { getToken, verifyAdmin, verifyUser } from 'src/authenticate';
 
 const router = express.Router();
+
+router.get('/', verifyUser, verifyAdmin, async (req: Request, res: Response) => {
+  const users = await User.find({});
+  res.status(200).send(users);
+})
 
 router.route("/register")
   .post(async (req: Request, res: Response) => {
@@ -29,7 +33,6 @@ router.route("/register")
     try {
       user = await User.register(new User({
         username: req.body.username,
-        admin: req.body.admin || false, 
       }), req.body.password)
     } catch(err) {
       throw err;

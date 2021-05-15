@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 
 import { ILeaderRequest } from "../shared/constants"; 
 import { Leader } from "../models/Leaders";
-import { verifyUser } from "src/authenticate";
+import { verifyAdmin, verifyUser } from "src/authenticate";
 
 const router = express.Router();
 
@@ -15,7 +15,7 @@ router.route("/")
       next(err);
     }
   })
-  .post(verifyUser, async (req: ILeaderRequest, res: Response, next: Function) => {
+  .post(verifyUser, verifyAdmin, async (req: ILeaderRequest, res: Response, next: Function) => {
     try {
       const leader = await Leader.create(req.body);
       res.status(201).json(leader);
@@ -23,11 +23,11 @@ router.route("/")
       next(err);
     }
   })
-  .put(verifyUser, (_: ILeaderRequest, res: Response) => {
+  .put(verifyUser, verifyAdmin, (_: ILeaderRequest, res: Response) => {
     res.statusCode = 403;
     res.send("PUT not supported on /api/leaders");
   })
-  .delete(verifyUser, async (_: Request, res: Response, next: Function) => {
+  .delete(verifyUser, verifyAdmin, async (_: Request, res: Response, next: Function) => {
     try {
       const leaders = await Leader.remove({});
       res.status(200).json(leaders);
@@ -51,11 +51,11 @@ router.route('/:leaderId')
       next(err);
     }
   })
-  .post(verifyUser, (req: ILeaderRequest, res: Response) => {
+  .post(verifyUser, verifyAdmin, (req: ILeaderRequest, res: Response) => {
     res.statusCode = 403;
     res.send(`POST not supported on /api/leaders/${req.params?.leaderId}/`);
   })
-  .put(async (req: ILeaderRequest, res: Response, next: Function) => {
+  .put(verifyUser, verifyAdmin, async (req: ILeaderRequest, res: Response, next: Function) => {
     try {
       const leader = await Leader.findByIdAndUpdate(req.params.leaderId, {
         $set: req.body,
@@ -73,7 +73,7 @@ router.route('/:leaderId')
       next(err);
     }
   })
-  .delete(verifyUser, async (req: Request, res: Response, next: Function) => {
+  .delete(verifyUser, verifyAdmin, async (req: Request, res: Response, next: Function) => {
     try {
       const leader = await Leader.findByIdAndRemove(req.params.leaderId);
       if (leader) {

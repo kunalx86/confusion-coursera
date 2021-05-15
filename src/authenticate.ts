@@ -3,7 +3,8 @@ import passportLocal from "passport-local"
 import jwt from "jsonwebtoken";
 import jwtpassport from "passport-jwt";
 import { User } from "./models/Users";
-import { JWTPayload } from "@shared/constants";
+import { CustomError, JWTPayload } from "@shared/constants";
+import { NextFunction, Request, Response } from "express";
 
 passport.use(new passportLocal.Strategy(User.authenticate()));
 passport.serializeUser((user, done) => {
@@ -32,4 +33,13 @@ export const jwtPassport = passport.use(new jwtpassport.Strategy({
   })
 )
 
-export const verifyUser = passport.authenticate('jwt', { session: false })
+export const verifyUser = passport.authenticate('jwt', { session: false });
+
+export const verifyAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (req.user?.admin) next();
+  else {
+    let err:CustomError = new Error("You are not authorized to perform this operation!");
+    err.status = 403;
+    return next(err);
+  }
+}
