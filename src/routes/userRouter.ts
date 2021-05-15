@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import { User, UserDocument } from 'src/models/Users';
 import passport from "passport";
 import { getToken, verifyUser } from 'src/authenticate';
+import { IUserRequest } from '@shared/constants';
 
 const router = express.Router();
 
@@ -33,6 +34,9 @@ router.route("/register")
     } catch(err) {
       throw err;
     }
+    user.firstname = req.body.firstname || '';
+    user.lastname = req.body.lastname || '';
+    await user.save();
     passport.authenticate('local')(req, res, () => {
       res.status(200).send({
         success: true,

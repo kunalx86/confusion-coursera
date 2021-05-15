@@ -10,7 +10,7 @@ const router = express.Router();
 router.route("/")
   .get(async (_: Request, res: Response, next: Function) => {
     try {
-      const dishes = await Dish.find({});
+      const dishes = await Dish.find({}).populate('comments.author');
       res.status(200).json(dishes);
     } catch (err) {
       next(err);
@@ -40,7 +40,7 @@ router.route("/")
 router.route('/:dishId') 
   .get(async (req: Request, res: Response, next: Function) => {
     try {
-      const dish = await Dish.findById(req.params.dishId);
+      const dish = await Dish.findById(req.params.dishId).populate('comments.author');
       if (dish) {
         res.status(200).json(dish);
       } else {
@@ -93,7 +93,7 @@ router.route('/:dishId')
 router.route("/:dishId/comments")
   .get(async (req: Request, res: Response, next: Function) => {
     try {
-      const dish = await Dish.findById(req.params.dishId);
+      const dish = await Dish.findById(req.params.dishId).populate('comments.author');
       if (dish) {
         res.status(200).json({
           comments: dish.comments
@@ -111,8 +111,9 @@ router.route("/:dishId/comments")
     try {
       const dish = await Dish.findById(req.params.dishId);
       if (dish) {
+        req.body.author = req.user?._id;
         dish.comments?.push(new Comment(req.body));
-        const newDish = await dish.save();
+        const newDish = (await dish.save()).populate('comments.author');
         res.status(200).json({
           dish: newDish
         });
@@ -155,7 +156,7 @@ router.route("/:dishId/comments")
 router.route('/:dishId/comments/:commentId') 
   .get(async (req: Request, res: Response, next: Function) => {
     try {
-      const dish = await Dish.findById(req.params.dishId);
+      const dish = await Dish.findById(req.params.dishId).populate('comments.author');
       if (dish && dish.comments?.id(req.params.commentId)) {
         res.status(200).json({
           comment: dish.comments.id(req.params.commentId)
@@ -187,7 +188,7 @@ router.route('/:dishId/comments/:commentId')
         if (req.body.comment) {
           dish.comments.id(req.params.commentId).comment = req.body.comment;
         }
-        const newDish = await dish.save();
+        const newDish = (await dish.save()).populate('comments.author');
         res.status(200).json({
           comment: newDish.comments?.id(req.params.commentId)
         });
@@ -209,7 +210,7 @@ router.route('/:dishId/comments/:commentId')
       const dish = await Dish.findById(req.params.dishId);
       if (dish && dish.comments?.id(req.params.commentId)) {
         dish.comments.id(req.params.commentId).remove();
-        const newDish = await dish.save();
+        const newDish = (await dish.save()).populate('comments.author');
         res.status(200).json({
           dish: newDish
         });
