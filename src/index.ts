@@ -4,9 +4,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 
 import express, { NextFunction, Request, Response } from 'express';
-// import session from 'express-session';
-// const FileStore = require('session-file-store')(session);
-
+import cors from "cors";
 import StatusCodes from 'http-status-codes';
 import 'express-async-errors';
 import mongoose from "mongoose";
@@ -16,11 +14,15 @@ import logger from '@shared/Logger';
 import { CustomError } from '@shared/constants';
 import passport from "passport"
 import "./authenticate";
+import { corsWithOptions } from './cors';
 
 (async () => {
   const app = express();
-  // FileStore(session);
   const { BAD_REQUEST } = StatusCodes;
+  /************************************************************************************
+   *                              Mongoose Connection Setup
+   ***********************************************************************************/
+  
   const url = process.env.MONGO_URL || "";
   try {
     await mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -28,29 +30,22 @@ import "./authenticate";
   } catch (err) {
     console.error(err);
   }
-  /************************************************************************************
-   *                              Mongoose Connection Setup
-   ***********************************************************************************/
-
-
-
+  
   /************************************************************************************
    *                              Set basic express settings
    ***********************************************************************************/
 
+  // app.use(corsWithOptions);
+  app.use(
+    cors({
+      origin: [`http://localhost:${Number(process.env.PORT || 5000)}`],
+      credentials: true,
+    })
+  )
+  // app.options("*", corsWithOptions);
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  // app.use(cookieParser(process.env.COOKIE_SECRET));
-  // app.use(session({
-  //   name: 'session-id',
-  //   secret: process.env.SESSION_SECRET || "",
-  //   saveUninitialized: false,
-  //   resave: false,
-  //   store: new FileStore(),
-  // }));
-
   app.use(passport.initialize());
-  // app.use(passport.session())
 
   // Show routes called in console during development
   if (process.env.NODE_ENV === 'development') {
@@ -61,43 +56,8 @@ import "./authenticate";
   if (process.env.NODE_ENV === 'production') {
     app.use(helmet());
   }
-
-  // app.use((req: Request, res: Response, next: NextFunction) => {
-  //   if (!req.session.user) {
-  //     const authHeader = req.headers['authorization'];
-  //     if (!authHeader) {
-  //       let err:CustomError = new Error("You are not authenticated!");
-  //       res.setHeader('WWW-Authenticate', 'Basic')
-  //       err.status = 401;
-  //       return next(err);
-  //     }
-  //     const auth = Buffer.from(authHeader.split(' ')[1], "base64").toString().split(':');
-  //     const [username, password] = auth;
-
-  //     if (username === 'admin' && password === 'password') {
-  //       req.session.user = "admin";
-  //       next();
-  //     }
-  //     else {
-  //       let err:CustomError = new Error("You are not authenticated!");
-  //       res.setHeader('WWW-Authenticate', 'Basic')
-  //       err.status = 401;
-  //       return next(err);
-  //     }
-  //   }
-  //   else {
-  //     if (req.session.user === 'admin') {
-  //       next();
-  //     }
-  //     else {
-  //       let err:CustomError = new Error("You are not admin!");
-  //       err.status = 401;
-  //       return next(err);
-  //     }
-  //   }
-  // });
-
-  // Add APIs
+    
+    // Add APIs
   app.use('/api', BaseRouter);
 
   // Print API errors
