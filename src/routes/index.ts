@@ -5,6 +5,7 @@ import leaderRouter from "./leaderRouter";
 import promoRouter from "./promoRouter";
 import userRouter from "./userRouter";
 import uploadRouter from "./uploadRouter";
+import favoriteRouter from "./favoriteRouter";
 import { verifyUser } from 'src/authenticate';
 
 // Init router and path
@@ -26,6 +27,7 @@ router.use("/dishes", dishRouter);
 router.use("/leaders", leaderRouter);
 router.use("/promotions", promoRouter);
 router.use("/upload", uploadRouter);
+router.use("/favorites", favoriteRouter);
 
 // Export the base-router
 export default router;
