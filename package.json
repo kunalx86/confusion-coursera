@@ -20,7 +20,8 @@
   },
   "_moduleAliases": {
     "@entities": "dist/entities",
-    "@shared": "dist/shared"
+    "@shared": "dist/shared",
+    "src": "dist"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",

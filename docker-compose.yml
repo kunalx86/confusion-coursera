@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    stdin_open: false
+    ports: 
+      - "8080:8080"
+    volumes: 
+      - ./uploads:/usr/src/app/uploads
+    env_file: ./env/production.env
+
+  db:
+    image: mongo:4.4.5
+    stdin_open: false
+    volumes: 
+      - ./mongo_data:/data/db
+    environment: 
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - "27017:27107"

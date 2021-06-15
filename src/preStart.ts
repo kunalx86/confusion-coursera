@@ -17,6 +17,9 @@ const result2 = dotenv.config({
   path: `./env/${options.env as string}.env`,
 });
 
-if (result2.error) {
-  throw result2.error;
-}
+// Important because while in running in container docker will provide path to env file
+// It will just not throw error if not running in container
+// But that trade off should be ok
+// if (result2.error) {
+//   throw result2.error;
+// }
