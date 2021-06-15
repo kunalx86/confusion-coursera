@@ -22,8 +22,6 @@ COPY package.json ./
 
 COPY yarn.lock ./
 
-COPY env ./env
-
 RUN yarn --production
 
 COPY --from=0 /usr/src/app/dist ./dist

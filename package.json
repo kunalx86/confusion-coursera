@@ -1,5 +1,9 @@
 {
   "name": "confusion-server",
+  "author": {
+    "email": "mail.kunaljoshi@gmail.com",
+    "name": "Kunal Joshi"
+  },
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
